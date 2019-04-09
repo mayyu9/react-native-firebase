@@ -52,17 +52,80 @@ async createNotificationListeners() {
   /*
   * Triggered when a particular notification has been received in foreground
   * */
-  debugger;
-  this.notificationDisplayedListener = firebase.notifications().onNotificationDisplayed((notification: Notification) => {
-        // Process your notification as required
-        // ANDROID: Remote notifications do not contain the channel ID. You will have to specify this manually if you'd like to re-display the notification.
-        console.log("display: "+notification);
-    });
+  //debugger;
+  /**
+         * When app on foreground, rewrap received notification and re-send it as notification using channelId
+         * A workaround because channelId never set by default by FCM API so we need to rewrap to make sure it is
+         * shown on user's notification tray
+         */
+        this.notificationListener = firebase.notifications().onNotification((notification) => {
+            //data object must have channelId props as a workaround for foreground notification on Android
+            console.log('Notif ', notification);
+            notification.android.setChannelId(notification.data.channelId);
+            firebase.notifications().displayNotification(notification);
+        });
 
-  this.notificationListener = firebase.notifications().onNotification((notification: Notification) => {
-        // Process your notification as required
-          console.log("listener: "+notification);
-    });
+        //On Notification tapped, be it from foreground or background
+        this.notificationOpen = firebase.notifications().onNotificationOpened((notificationOpen) => {
+            //body and title lost if accessed from background, taking info from data object by default
+            const notification = notificationOpen.notification;
+            console.log('Open ', notification)
+            Alert.alert(notification.data.title, notification.data.body);
+        });
+
+        //When notification received when app is closed
+        this.initialNotification = firebase.notifications().getInitialNotification()
+            .then((notificationOpen) => {
+                //body and title lost if accessed this way, taking info from data object where info will persist
+                if (notificationOpen) {
+                    const notification = notificationOpen.notification;
+                    console.log('Initial ', notification)
+                    Alert.alert(notification.data.title, notification.data.body);
+                }
+            });
+    }
+
+    componentWillUnmount() {
+        this.notificationListener();
+        this.initialNotification()
+        this.notificationOpen();
+    }
+  // this.messageListener = firebase.notifications().onNotification(async notification => {
+  //
+  //       console.log('has sucessful get nototification', notification);
+  //
+  //       const { title, action } = notification.data; // we can take data from payload to navigate
+  //
+  //
+  //
+  //       notification.android.setChannelId("some"); // needed but unused.
+  //
+  //
+  //
+  //       await firebase.notifications().displayNotification(notification);
+  //
+  //
+  //
+  //   });
+  // this.notificationDisplayedListener = firebase.notifications().onNotificationDisplayed((notification: Notification) => {
+  //       // Process your notification as required
+  //       // ANDROID: Remote notifications do not contain the channel ID. You will have to specify this manually if you'd like to re-display the notification.
+  //       // Get the action triggered by the notification being opened
+  //       // const action = notificationOpen.action;
+  //       //      // Get information about the notification that was opened
+  //       // const notification: Notification = notificationOpen.notification;
+  //       console.log("display: "+notification);
+  //   });
+  //
+  // this.notificationListener = firebase.notifications().onNotification((notification: Notification) => {
+  //
+  //   // Get the action triggered by the notification being opened
+  //   // const action = notificationOpen.action;
+  //   //      // Get information about the notification that was opened
+  //   // const notification= notificationOpen.notification;
+  //       // Process your notification as required
+  //         console.log("listener: "+notification);
+  //   });
   // this.notificationListener = firebase.notifications().onNotification((notification) => {
   //     const { title, body } = notification;
   //     this.showAlert(title, body);
@@ -93,7 +156,7 @@ async createNotificationListeners() {
   //   //process data message
   //   console.log(JSON.stringify(message));
   // });
-}
+//}
 
 showAlert(title, body) {
   debugger;
@@ -107,10 +170,10 @@ showAlert(title, body) {
 }
 
 //Remove listeners allocated in createNotificationListeners()
-componentWillUnmount() {
-  this.notificationListener();
-  this.notificationDisplayedListener();
-}
+// componentWillUnmount() {
+//   this.messageListener();
+//   this.notificationDisplayedListener();
+// }
 
 
   render() {
