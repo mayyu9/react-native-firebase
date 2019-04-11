@@ -7,7 +7,10 @@ import './global.js';
 
 
 export default class App extends Component {
-
+constructor(props){
+  super(props);
+  this.state={notification:[]};
+}
 
 async componentDidMount() {
   this.checkPermission();
@@ -75,6 +78,16 @@ async createNotificationListeners() {
    */
   this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
     global.foo = global.foo - 1;
+      let notificationObject = {};
+      notificationObject.data = notificationOpen.notification._data;
+      notificationObject.body = "body";//notificationOpen.notification._body;
+      notificationObject.title = "title";//notificationOpen.notification._title;
+
+      this.setState(prevState => ({
+        notification: [...prevState.notification, notificationObject]
+      }));
+
+      console.log("notification object : "+JSON.stringify(notificationObject));
       const { title, body } = notificationOpen.notification;
       //console.log('background notification: '+notificationOpen.notification.data);
       //console.log(notificationOpen.notification.title);
@@ -120,11 +133,11 @@ showAlert2(title, body) {
 
 
   render() {
+    console.log("render : "+JSON.stringify(this.state.notification));
     return (
       <View style={{flex: 1}}>
         <Text>Welcome to React Native!</Text>
         <Text>Total Count is {global.foo}</Text>
-        
       </View>
     );
   }
