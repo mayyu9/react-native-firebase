@@ -64,7 +64,8 @@ async createNotificationListeners() {
   this.notificationListener = firebase.notifications().onNotification((notification) => {
       global.foo = global.foo - 1;
       const { title, body } = notification;
-      console.log(notification.title);
+      console.log('foreground: '+notification.title);
+      console.log('foreground: '+notification);
       this.showAlert1(title, body);
      // alert(existing+1);
   });
@@ -75,6 +76,7 @@ async createNotificationListeners() {
   this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
     global.foo = global.foo - 1;
       const { title, body } = notificationOpen.notification;
+      console.log('background notification: '+JSON.stringify(notificationOpen.notification));
       console.log(notificationOpen.notification.title);
       this.showAlert1(title, body);
   });
@@ -83,10 +85,11 @@ async createNotificationListeners() {
   * If your app is closed, you can check if it was opened by a notification being clicked / tapped / opened as follows:
    */
   const notificationOpen = await firebase.notifications().getInitialNotification();
+  console.log('notification open: '+notificationOpen);
   if (notificationOpen) {
     global.foo = global.foo - 1;
       const { title, body } = notificationOpen.notification;
-      console.log(notificationOpen.notification.title);
+      console.log('inside notification open: '+notificationOpen.notification.title);
       this.showAlert1(title, body);
   }
   /*
