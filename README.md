@@ -14,3 +14,4 @@ we need to add the device fcm token in the firebase console, so that the notific
         https://medium.com/@yangnana11/how-to-set-up-firebase-notification-in-react-native-app-android-only-4920eb875eae
         
 
+if we don't add the fcm device token then on every push notification app crashes. 

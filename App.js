@@ -76,8 +76,11 @@ async createNotificationListeners() {
   this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
     global.foo = global.foo - 1;
       const { title, body } = notificationOpen.notification;
-      console.log('background notification: '+JSON.stringify(notificationOpen.notification));
-      console.log(notificationOpen.notification.title);
+      //console.log('background notification: '+notificationOpen.notification.data);
+      //console.log(notificationOpen.notification.title);
+      firebase.notifications().getBadge()
+        .then( count => console.log('count: '+count))
+        .catch(error => console.log("error: "+error));
       this.showAlert1(title, body);
   });
 
