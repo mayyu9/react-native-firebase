@@ -10,6 +10,7 @@ export default class App extends Component {
 constructor(props){
   super(props);
   this.state={notification:[]};
+  this.notificationObject = {};
 }
 
 async componentDidMount() {
@@ -66,6 +67,15 @@ async createNotificationListeners() {
    */
   this.notificationListener = firebase.notifications().onNotification((notification) => {
       global.foo = global.foo - 1;
+      //const { title, body } = notification;
+      this.notificationObject.data = notification._data;
+      this.notificationObject.body = "body";//notificationOpen.notification._body;
+      this.notificationObject.title = "title";//notificationOpen.notification._title;
+
+        this.setState(prevState => ({
+          notification: [...prevState.notification, this.notificationObject]
+        }));
+      console.log("notification object foreground : "+JSON.stringify(this.notificationObject));
       const { title, body } = notification;
       console.log('foreground: '+notification.title);
       console.log('foreground: '+notification);
@@ -78,16 +88,15 @@ async createNotificationListeners() {
    */
   this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
     global.foo = global.foo - 1;
-      let notificationObject = {};
-      notificationObject.data = notificationOpen.notification._data;
-      notificationObject.body = "body";//notificationOpen.notification._body;
-      notificationObject.title = "title";//notificationOpen.notification._title;
+    this.notificationObject.data = notificationOpen.notification._data;
+    this.notificationObject.body = "body";//notificationOpen.notification._body;
+    this.notificationObject.title = "title";//notificationOpen.notification._title;
 
       this.setState(prevState => ({
-        notification: [...prevState.notification, notificationObject]
+        notification: [...prevState.notification, this.notificationObject]
       }));
 
-      console.log("notification object : "+JSON.stringify(notificationObject));
+      console.log("notification object background: "+JSON.stringify(this.notificationObject));
       const { title, body } = notificationOpen.notification;
       //console.log('background notification: '+notificationOpen.notification.data);
       //console.log(notificationOpen.notification.title);
@@ -104,8 +113,16 @@ async createNotificationListeners() {
   console.log('notification open: '+notificationOpen);
   if (notificationOpen) {
     global.foo = global.foo - 1;
+    this.notificationObject.data = notificationOpen.notification._data;
+    this.notificationObject.body = "body";//notificationOpen.notification._body;
+    this.notificationObject.title = "title";//notificationOpen.notification._title;
+
+      this.setState(prevState => ({
+        notification: [...prevState.notification, this.notificationObject]
+      }));
+
+      console.log("inside notification open : "+JSON.stringify(this.notificationObject));
       const { title, body } = notificationOpen.notification;
-      console.log('inside notification open: '+notificationOpen.notification.title);
       this.showAlert1(title, body);
   }
   /*
